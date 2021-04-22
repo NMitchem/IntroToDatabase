@@ -19,11 +19,6 @@ merged["modelno_y"] = merged["modelno_y"].astype(str).str.lower()
 merged["category_x"] = merged["category_x"].astype(str)
 merged["category_y"] = merged["category_y"].astype(str)
 
-print(merged.columns)
-# idssame = list(np.where(merged["id_x"] == merged["id_y"])[0])
-# matchesx = list(merged[idssame]["id_x"])
-# matchesy = list(merged[idssame]["id_y"])
-
 #bag of words model
 matches = []
 total = []
@@ -56,12 +51,11 @@ def featureEngineering(df):
     df["PriceDifference"] = Scaler.fit_transform(df.apply(price, attribute = "price", axis = 1).to_numpy().reshape((-1,1)))
     return df
 merged = featureEngineering(merged)
+
 trainingindicies = []
 traininglabels = []
-merged.drop(["Unnamed: 0", "title_x", "category_x", "brand","modelno_x", "title_y", "category_y", "modelno_y", "LevScorecategory"], axis = 1, inplace= True)
+merged.drop(["title_x", "category_x", "brand","modelno_x", "title_y", "category_y", "modelno_y", "LevScorecategory"], axis = 1, inplace= True)
 for i in merged.columns:
-    if "modelno" in i:
-        merged[i].fillna(-2, inplace=True)
     merged[i].fillna(np.mean(merged[i]), inplace= True)
 for i in training.iterrows():
     i = i[1]
@@ -74,13 +68,11 @@ for i in training.iterrows():
         traininglabels.append(label)
 trainingDF = pd.DataFrame(merged.iloc[trainingindicies])
 trainingDF["labels"] = traininglabels
-#print(trainingDF.iloc[np.where(trainingDF["labels"] ==0)].describe())
-#print(trainingDF.iloc[np.where(trainingDF["labels"] ==1)].describe())
 
 from sklearn.svm import SVC
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.ensemble import BaggingClassifier
-SVM = OneVsRestClassifier(BaggingClassifier(SVC(kernel='linear', C = 8, cache_size=9000, probability=True, break_ties=True), max_samples=1.0 / 20, n_estimators=20), n_jobs = -1)
+SVM = OneVsRestClassifier(BaggingClassifier(SVC(kernel='linear', C = 6, cache_size=9000, probability=True, break_ties= True), max_samples=1.0 / 15, n_estimators=15), n_jobs = -1)
 #neural = SVC(kernel="linear", C=25, cache_size= 3000, break_ties= True, probability=True)#class_weight="balanced")
 SVM.fit(trainingDF.drop(["labels"], axis=1), traininglabels)
 y_pred = SVM.predict(merged)
