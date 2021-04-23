@@ -72,8 +72,7 @@ trainingDF["labels"] = traininglabels
 from sklearn.svm import SVC
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.ensemble import BaggingClassifier
-SVM = OneVsRestClassifier(BaggingClassifier(SVC(kernel='linear', C = 6, cache_size=9000, probability=True, break_ties= True), max_samples=1.0 / 15, n_estimators=15), n_jobs = -1)
-#neural = SVC(kernel="linear", C=25, cache_size= 3000, break_ties= True, probability=True)#class_weight="balanced")
+SVM = OneVsRestClassifier(BaggingClassifier(SVC(kernel='linear', C = 12, cache_size=9000, probability=True, break_ties= True), max_samples=1.0 / 10, n_estimators=10), n_jobs = -1)
 SVM.fit(trainingDF.drop(["labels"], axis=1), traininglabels)
 y_pred = SVM.predict(merged)
 matching_pairs = merged.loc[y_pred == 1, ["id_x", "id_y"]]
